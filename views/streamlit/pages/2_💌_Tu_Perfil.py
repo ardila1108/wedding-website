@@ -14,3 +14,5 @@ if not st.session_state.is_logged_in:
         st.experimental_rerun()
 else:
     st.title(f"Hola {st.session_state.name.title()}!")
+    attending = st.checkbox("Confirmo mi asistencia")
+    food_allergies = st.text_area("Restricciones alimenticias")
