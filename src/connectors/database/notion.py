@@ -1,16 +1,19 @@
 from notion_client import Client
+from src.config import env
 from src.connectors.database.base import DatabaseConnector
 
 
 class NotionDatabaseConnector(DatabaseConnector):
-    def __init__(self, database_id: str = None):
-        if database_id is None:
-            self.database_id = "4c17f27b0c014405bd601bd644adc1dc"
-        self.client = Client(auth="secret_MgiEJdX3dBTbnNcSIZoyKkaz0f4t6YSVylpgAY2J6Ci")
+    def __init__(self, profile_db_id: str = None, group_db_id: str = None):
+        if profile_db_id is None:
+            self.profile_db_id = env("NOTION_INVITE_LIST_DB")
+        if group_db_id is None:
+            self.group_db_id = env("NOTION_GROUP_LIST_DB")
+        self.client = Client(auth=env("NOTION_API_SECRET_KEY"))
 
     def create(self, profile_dict: dict):
         self.client.pages.create(
-            parent={"database_id": self.database_id},
+            parent={"database_id": self.profile_db_id},
             properties={
                 "user_id": {"title": [{"text": {"content": profile_dict.get("user_id")}}]},
                 "name": {'rich_text': [{'type': 'text', 'text': {'content': profile_dict.get("name")}}]},
@@ -20,15 +23,19 @@ class NotionDatabaseConnector(DatabaseConnector):
             }
         )
 
-    def read(self, user_id) -> dict:
-        parsed_dict = self._parse_profile(user_id)
-
-        if parsed_dict.get("plus_one_id"):
-            parsed_dict["plus_one"] = self._get_plus_one(parsed_dict.get("plus_one_id"))
-        else:
-            parsed_dict["plus_one"] = None
+    def read_user(self, user_id) -> dict:
+        profile_dict = self._get_profile_page(user_id)["properties"]
+        parsed_dict = self._parse_profile(profile_dict)
 
         return parsed_dict
+
+    def read_group(self, group_id) -> dict:
+        invite_list = self._get_group_members(group_id)
+        group_info = {
+            "name": self._get_group_name(group_id),
+            "invitee_list": [self._parse_profile(inv["properties"]) for inv in invite_list]
+        }
+        return group_info
 
     def update(self, user_id: str, changes_dict: dict):
         page_id = self._get_profile_page(user_id)["id"]
@@ -72,7 +79,7 @@ class NotionDatabaseConnector(DatabaseConnector):
     def _get_profile_page(self, user_id):
         return self.client.databases.query(
             **{
-                "database_id": self.database_id,
+                "database_id": self.profile_db_id,
                 "filter": {
                     "property": "user_id",
                     "rich_text": {
@@ -82,8 +89,31 @@ class NotionDatabaseConnector(DatabaseConnector):
             }
         )["results"][0]
 
-    def _get_plus_one(self, plus_one_id):
-        return self._parse_profile(plus_one_id)
+    def _get_group_members(self, group_id: str):
+        return self.client.databases.query(
+            **{
+                "database_id": self.profile_db_id,
+                "filter": {
+                    "property": "group_id",
+                    "rich_text": {
+                        "equals": group_id,
+                    },
+                },
+            }
+        )["results"]
+
+    def _get_group_name(self, group_id: str):
+        return self.client.databases.query(
+            **{
+                "database_id": self.group_db_id,
+                "filter": {
+                    "property": "group_id",
+                    "rich_text": {
+                        "equals": group_id,
+                    },
+                },
+            }
+        )["results"][0]["properties"]["name"]["rich_text"][0]["text"]["content"]
 
     @staticmethod
     def _parse_field(field_dict: dict):
@@ -95,8 +125,12 @@ class NotionDatabaseConnector(DatabaseConnector):
             return None
         return content
 
-    def _parse_profile(self, user_id: str):
-        profile_dict = self._get_profile_page(user_id)["properties"]
-        return {
+    def _parse_profile(self, profile_dict):
+        parsed_dict = {
             field: self._parse_field(profile_dict[field]) for field in profile_dict
         }
+        if parsed_dict.get("plus_one_id"):
+            parsed_dict["plus_one"] = self.read_user(parsed_dict.get("plus_one_id"))
+        else:
+            parsed_dict["plus_one"] = None
+        return parsed_dict

@@ -23,7 +23,7 @@ class InviteeProfile(BaseModel):
 
     @classmethod
     def read(cls, user_id: str):
-        profile_dict = cls.db_connector.read(user_id)
+        profile_dict = cls.db_connector.read_user(user_id)
         return cls(**profile_dict)
 
     def update(self, changes_dict: dict):
