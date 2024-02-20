@@ -6,8 +6,9 @@ st.set_page_config(page_title="CBTale", layout="wide", page_icon="👩‍❤️�
 
 init_state()
 
-params = st.experimental_get_query_params()
-if "user" in params and not st.session_state.is_logged_in:
+params = st.query_params
+
+if "group_id" in params and not st.session_state.is_logged_in:
     st.session_state.is_logged_in = True
     st.session_state.name = "test"
     switch_page("tu perfil")
