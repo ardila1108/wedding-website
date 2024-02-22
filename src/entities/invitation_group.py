@@ -2,11 +2,12 @@ from pydantic import BaseModel
 from typing import ClassVar
 
 from src.connectors.database import NotionDatabaseConnector
+from src.entities import InviteeProfile
 
 
 class InvitationGroup(BaseModel):
     name: str
-    invitee_list: list
+    invitee_list: list[InviteeProfile]
 
     db_connector: ClassVar = NotionDatabaseConnector()
 
