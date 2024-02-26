@@ -30,7 +30,20 @@ class SheetsDatabaseConnector(DatabaseConnector):
             self.group_sheet_name = env("SHEETS_GROUP_SHEET_NAME")
 
     def create(self, profile_dict: dict):
-        pass
+        full_data = self._read_whole_table("user")
+        col_names = full_data[0]
+        body = {
+            "majorDimension": "ROWS",
+            "values": [
+                [profile_dict.get(col) for col in col_names]
+            ]
+        }
+        self.service.spreadsheets().values().append(
+            spreadsheetId=self.spreadsheet_id,
+            range=f"{self.profile_sheet_name}!A:Z",
+            valueInputOption="USER_ENTERED",
+            body=body
+        ).execute()
 
     def read_user(self, user_id) -> dict:
         profile_dict = self._get_user_profile(user_id)
@@ -49,16 +62,38 @@ class SheetsDatabaseConnector(DatabaseConnector):
         pass
 
     def delete(self, user_id: str):
-        pass
+        full_data = self._read_whole_table("user")
+        user_idx = self._get_user_index(user_id, full_data)
+        body = {
+            "requests": [
+                {
+                    "deleteDimension": {
+                        "range": {
+                            "sheet_id": 0,
+                            "dimension": "ROWS",
+                            "startIndex": user_idx,
+                            "endIndex": user_idx + 1
+                        }
+                    }
+                }
+            ]
+        }
+
+        service.spreadsheets().batchUpdate(
+            spreadsheetId=self.spreadsheet_id,
+            body=body
+        ).execute()
+
+    @staticmethod
+    def _get_user_index(user_id: str, full_data: list):
+        for idx, user in enumerate(full_data):
+            if user[0] == user_id:
+                return idx
 
     def _get_user_profile(self, user_id):
         full_data = self._read_whole_table("user")
         col_names = full_data[0]
-        found_user= []
-        for user in full_data[1:]:
-            if user[0] == user_id:
-                found_user = user
-                break
+        found_user = full_data[self._get_user_index(user_id, full_data)]
         return {
             k: v for (k, v) in zip(col_names, found_user)
         }
