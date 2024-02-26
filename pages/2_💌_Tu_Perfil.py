@@ -19,13 +19,14 @@ if not st.session_state.is_logged_in:
         st.rerun()
 else:
     st.title(f"Hola {st.session_state.group_profile.name}!")
-    profile_list = [Profile(inv) for inv in st.session_state.group_profile.invitee_list]
+    profile_list = [Profile(inv) for inv in st.session_state.group_profile.invitee_list if "-" not in inv.user_id]
     for invitee in profile_list:
         invitee.render()
 
     if st.button("Enviar Cambios"):
         with st.spinner("Actualizando cambios..."):
             for profile in profile_list:
+                st.write(profile.update_dict)
                 profile.invitee_object.update(profile.update_dict)
             update_profile()
             st.success("Información actualizada")
