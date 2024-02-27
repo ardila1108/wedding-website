@@ -59,7 +59,25 @@ class SheetsDatabaseConnector(DatabaseConnector):
         return group_info
 
     def update(self, user_id: str, changes_dict: dict):
-        pass
+        full_data = self._read_whole_table("user")
+        user_idx = self._get_user_index(user_id, full_data)
+        col_names = full_data[0]
+        user_data = self.read_user(user_id)
+        user_data.update(changes_dict)
+
+        body = {
+            "majorDimension": "ROWS",
+            "values": [
+                [user_data.get(col) for col in col_names]
+            ]
+        }
+
+        self.service.spreadsheets().values().update(
+            spreadsheetId=self.spreadsheet_id,
+            range=f"{self.profile_sheet_name}!A{user_idx+1}:Z{user_idx+1}",
+            valueInputOption="USER_ENTERED",
+            body=body
+        ).execute()
 
     def delete(self, user_id: str):
         full_data = self._read_whole_table("user")
@@ -79,7 +97,7 @@ class SheetsDatabaseConnector(DatabaseConnector):
             ]
         }
 
-        service.spreadsheets().batchUpdate(
+        self.service.spreadsheets().batchUpdate(
             spreadsheetId=self.spreadsheet_id,
             body=body
         ).execute()
@@ -128,10 +146,11 @@ class SheetsDatabaseConnector(DatabaseConnector):
 
     @staticmethod
     def _parse_field(field_value):
-        if field_value.isnumeric():
-            return bool(int(field_value))
-        else:
-            return field_value
+        bool_value_mapping = {
+            "TRUE": True,
+            "FALSE": False
+        }
+        return bool_value_mapping.get(field_value, field_value)
 
     def _parse_profile(self, profile_dict):
         parsed_dict = {
