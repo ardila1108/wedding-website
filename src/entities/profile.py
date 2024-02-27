@@ -2,7 +2,7 @@ from pydantic import BaseModel
 from typing import Optional, ClassVar
 
 from src.entities.plus_one_profile import PlusOneProfile
-from src.connectors.database import NotionDatabaseConnector
+from src.connectors.database import SheetsDatabaseConnector
 
 
 class InviteeProfile(BaseModel):
@@ -14,7 +14,7 @@ class InviteeProfile(BaseModel):
     group_id: Optional[str] = None
     plus_one: Optional[PlusOneProfile] = None
 
-    db_connector: ClassVar = NotionDatabaseConnector()
+    db_connector: ClassVar = SheetsDatabaseConnector()
 
     def write(self):
         self.db_connector.create(
