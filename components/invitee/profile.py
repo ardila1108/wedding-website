@@ -11,6 +11,7 @@ class Profile:
         self.update_dict = {}
 
     def render(self):
+        render_plus_one = False
         with st.expander(r"$\textsf{\Large %s}$" % self.invitee_object.name):
             self.update_dict["attending"] = st.checkbox(
                 "Confirmo mi asistencia",
@@ -20,7 +21,7 @@ class Profile:
             if self.update_dict["attending"]:
                 self.update_dict["restrictions"] = st.text_area(
                     "Restricciones alimenticias",
-                    self.invitee_object.restrictions,
+                    self.invitee_object.restrictions or "Ninguna",
                     key=f"rest_{self.invitee_object.user_id}"
                 )
                 if self.invitee_object.can_bring_plus_one:
@@ -30,13 +31,11 @@ class Profile:
                         key=f"plus_one_{self.invitee_object.user_id}"
                     )
                     if plus_one:
+                        render_plus_one = True
                         self._render_plus_one_info(self.invitee_object.plus_one)
 
-        emoji_col, plus_one_col = st.columns([0.03, 0.97])
-        with emoji_col:
-            st.markdown("<h3 style='text-align: center; color: grey;'>✅</h3>", unsafe_allow_html=True)
-        with plus_one_col:
-            with st.expander(r"$\textsf{\Large %s}$" % ("" + self.invitee_object.plus_one.name)):
+        if render_plus_one:
+            with st.expander(r"$\textsf{\Large %s}$" % ("✅" + self.invitee_object.plus_one.name)):
                 self._render_plus_one_profile(self.invitee_object.plus_one)
 
     def _render_plus_one_info(self, plus_one_object):
@@ -49,7 +48,7 @@ class Profile:
             )
             self.update_dict["plus_one"]["restrictions"] = st.text_area(
                 "Restricciones alimenticias",
-                plus_one_object.restrictions
+                plus_one_object.restrictions or "Ninguna"
             )
             self.update_dict["plus_one"]["attending"] = True
 
