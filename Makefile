@@ -6,3 +6,7 @@ run:
 
 stop:
 	docker stop $$(docker ps -q --filter ancestor=cb-wedding)
+
+full_run:
+	make build
+	make run

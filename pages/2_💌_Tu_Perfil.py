@@ -3,6 +3,8 @@ import streamlit as st
 from utils import login, change_button_color, update_profile, init_state
 from components.invitee import Profile
 
+st.set_page_config(page_title="CBTale", layout="wide", page_icon="👩‍❤️‍👨")
+
 init_state()
 
 if not st.session_state.is_logged_in:
