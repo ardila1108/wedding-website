@@ -2,7 +2,7 @@ import base64
 from google.oauth2.service_account import Credentials
 from googleapiclient.discovery import build
 from src.config import env
-from src.connectors.database.base import DatabaseConnector
+from src.connectors.database.invitee.base import DatabaseConnector
 
 
 class SheetsDatabaseConnector(DatabaseConnector):
