@@ -58,3 +58,7 @@ class SheetsGiftDatabaseConnector(ExperienceDatabaseConnector):
             range=f"{sheet_id}!A:Z"
         ).execute()
         return data["values"]
+
+#dr_cl = build("drive", "v3", credentials=db.credentials)
+#dr_cl.files().list(q="name='X001.jpeg'").execute()["files"][0]["id"]
+#dr_cl.files().get_media(fileId="1oJiD8XsbGwUw6SKUiDZ1K_PX9oyzou-H").execute()
