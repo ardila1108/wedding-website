@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 from typing import ClassVar
 
-from src.connectors.database import SheetsDatabaseConnector
+from src.connectors.database.invitee import SheetsDatabaseConnector
 from src.entities import InviteeProfile
 
 

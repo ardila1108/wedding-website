@@ -2,7 +2,7 @@ from pydantic import BaseModel
 from typing import Optional, ClassVar
 
 from src.entities.plus_one_profile import PlusOneProfile
-from src.connectors.database import SheetsDatabaseConnector
+from src.connectors.database.invitee import SheetsDatabaseConnector
 
 
 class InviteeProfile(BaseModel):
@@ -39,6 +39,7 @@ class InviteeProfile(BaseModel):
                 changes_dict = {k: v for k, v in changes_dict.items() if k != "plus_one"}
         else:
             if "plus_one" in changes_dict:
+                changes_dict["plus_one_id"] = f"{self.user_id}-1"
                 plus_one = changes_dict.get("plus_one")
                 plus_one["user_id"] = f"{self.user_id}-1"
                 plus_one["group_id"] = self.group_id

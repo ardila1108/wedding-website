@@ -2,7 +2,7 @@ import base64
 from google.oauth2.service_account import Credentials
 from googleapiclient.discovery import build
 from src.config import env
-from src.connectors.database.base import DatabaseConnector
+from src.connectors.database.invitee.base import DatabaseConnector
 
 
 class SheetsDatabaseConnector(DatabaseConnector):
@@ -12,7 +12,7 @@ class SheetsDatabaseConnector(DatabaseConnector):
                 "type": "service_account",
                 "project_id": env("SHEETS_PROJECT_ID"),
                 "private_key_id": env("SHEETS_PRIVATE_KEY_ID"),
-                "private_key": base64.b64decode(env("SHEETS_PRIVATE_ENCRIPTED_KEY")).decode(),
+                "private_key": base64.b64decode(env("SHEETS_PRIVATE_ENCRYPTED_KEY")).decode(),
                 "client_email": env("SHEETS_CLIENT_EMAIL"),
                 "client_id": env("SHEETS_CLIENT_ID"),
                 "auth_uri": "https://accounts.google.com/o/oauth2/auth",

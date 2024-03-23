@@ -1,6 +1,6 @@
 from notion_client import Client
 from src.config import env
-from src.connectors.database.base import DatabaseConnector
+from src.connectors.database.invitee.base import DatabaseConnector
 
 
 class NotionDatabaseConnector(DatabaseConnector):
