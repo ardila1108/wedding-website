@@ -32,19 +32,50 @@ class SheetsGiftDatabaseConnector(ExperienceDatabaseConnector):
     def read_gift(self, gift_id: str):
         full_data = self._read_whole_table("gift")
         col_names = full_data[0]
-        found_gift = full_data[self._get_user_index(gift_id, full_data)]
+        found_gift = full_data[self._get_gift_index(gift_id, full_data)]
         return {
             k: v for (k, v) in zip(col_names, found_gift)
         }
 
     def add_contribution(self, gift_contribution: dict):
-        pass
+        full_data = self._read_whole_table("contribution")
+        col_names = full_data[0]
+        body = {
+            "majorDimension": "ROWS",
+            "values": [
+                [gift_contribution.get(col) for col in col_names]
+            ]
+        }
+        self.service.spreadsheets().values().append(
+            spreadsheetId=self.spreadsheet_id,
+            range=f"{self.gift_contribution_sheet_name}!A:Z",
+            valueInputOption="USER_ENTERED",
+            body=body
+        ).execute()
+
+    def read_contributions(self, gift_id: str):
+        full_data = self._read_whole_table("contribution")
+        col_names = full_data[0]
+        contribution_indexes = self._get_contribution_indexes(gift_id, full_data)
+        return [
+            {
+                k: v for k, v in zip(col_names, full_data[idx])
+            } for idx in contribution_indexes
+        ]
 
     @staticmethod
-    def _get_user_index(gift_id: str, full_data: list):
+    def _get_gift_index(gift_id: str, full_data: list):
         for idx, gift in enumerate(full_data):
             if gift[0] == gift_id:
                 return idx
+
+    @staticmethod
+    def _get_contribution_indexes(gift_id: str, full_data: list):
+        res = []
+        for idx, gift in enumerate(full_data):
+            if gift[0] == gift_id:
+                res.append(idx)
+        return res
 
     def _read_whole_table(self, level: str):
         if level == "gift":
@@ -58,7 +89,3 @@ class SheetsGiftDatabaseConnector(ExperienceDatabaseConnector):
             range=f"{sheet_id}!A:Z"
         ).execute()
         return data["values"]
-
-#dr_cl = build("drive", "v3", credentials=db.credentials)
-#dr_cl.files().list(q="name='X001.jpeg'").execute()["files"][0]["id"]
-#dr_cl.files().get_media(fileId="1oJiD8XsbGwUw6SKUiDZ1K_PX9oyzou-H").execute()

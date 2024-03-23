@@ -12,7 +12,7 @@ class SheetsDatabaseConnector(DatabaseConnector):
                 "type": "service_account",
                 "project_id": env("SHEETS_PROJECT_ID"),
                 "private_key_id": env("SHEETS_PRIVATE_KEY_ID"),
-                "private_key": base64.b64decode(env("SHEETS_PRIVATE_ENCRIPTED_KEY")).decode(),
+                "private_key": base64.b64decode(env("SHEETS_PRIVATE_ENCRYPTED_KEY")).decode(),
                 "client_email": env("SHEETS_CLIENT_EMAIL"),
                 "client_id": env("SHEETS_CLIENT_ID"),
                 "auth_uri": "https://accounts.google.com/o/oauth2/auth",
