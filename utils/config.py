@@ -1,5 +1,6 @@
 import streamlit as st
 from src.entities import InvitationGroup
+from src.entities import Gift
 
 
 def init_state():
@@ -11,6 +12,9 @@ def init_state():
 
     if 'group_id' not in st.session_state:
         st.session_state.group_id = ""
+
+    if 'gift_list' not in st.session_state:
+        st.session_state.gift_list = []
 
 
 def update_profile():
