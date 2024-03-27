@@ -31,6 +31,8 @@ class Profile:
                     )
                     if plus_one:
                         self._render_plus_one_info(self.invitee_object.plus_one)
+                    else:
+                        self.update_dict["plus_one"] = None
 
         if self.invitee_object.plus_one:
             with st.expander(r"$\textsf{\Large %s}$" % ("✅" + self.invitee_object.plus_one.name)):

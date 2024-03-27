@@ -33,6 +33,9 @@ class InviteeProfile(BaseModel):
                 if plus_one_changes:
                     self.db_connector.update(self.plus_one.user_id, plus_one_changes)
                 else:
+                    self.db_connector.update(self.user_id, {
+                        "plus_one_id": ""
+                    })
                     self.db_connector.delete(
                         user_id=self.plus_one.user_id
                     )
