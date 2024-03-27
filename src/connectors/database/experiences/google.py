@@ -37,6 +37,10 @@ class SheetsGiftDatabaseConnector(ExperienceDatabaseConnector):
             k: v for (k, v) in zip(col_names, found_gift)
         }
 
+    def get_gift_list(self):
+        full_data = self._read_whole_table("gift")
+        return [g[0] for g in full_data[1:]]
+
     def add_contribution(self, gift_contribution: dict):
         full_data = self._read_whole_table("contribution")
         col_names = full_data[0]

@@ -11,7 +11,7 @@ class Gift(BaseModel):
     gift_id: str
     title: str
     description: str
-    img: bytes
+    img: str
     price: int
     price_unit: str
     amount_paid: int
@@ -23,14 +23,10 @@ class Gift(BaseModel):
     @classmethod
     def read(cls, gift_id):
         gift_dict = cls.db_connector.read_gift(gift_id)
-        gift_dict["img"] = cls.storage_connector.get_image_bytes(gift_id)
         contributions = cls.db_connector.read_contributions(gift_id)
         gift_dict["amount_paid"] = sum([int(cont["amount"]) for cont in contributions])
         gift_dict["contributors"] = [cont["user_id"] for cont in contributions]
         return cls(**gift_dict)
-
-    def get_image(self):
-        return Image.open(io.BytesIO(self.img))
 
 
 class GiftContribution(BaseModel):
